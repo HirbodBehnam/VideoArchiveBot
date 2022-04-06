@@ -111,7 +111,8 @@ internal static class Database
 		else
 		{
 			data = await _db.QueryAsync<Types.VideoSessionInfo>(
-				"SELECT id, session_number, course_id FROM videos WHERE id <= ? AND course_id=? AND verified=TRUE ORDER BY session_number DESC LIMIT ?", id, courseId, limit);
+				"SELECT id, session_number, course_id FROM videos WHERE id <= ? AND course_id=? AND verified=TRUE ORDER BY session_number DESC LIMIT ?",
+				id, courseId, limit);
 			data.Reverse(); // Get them ascending
 		}
 
@@ -119,10 +120,12 @@ internal static class Database
 		// We simply use the data to get the IDs
 		// We should never reach data.Count > 0 == false
 		bool hasBefore = data.Count > 0 &&
-		                 await _db.ExecuteScalarAsync<bool>("SELECT EXISTS(SELECT 1 FROM videos WHERE id < ? AND course_id=? AND verified=TRUE)",
+		                 await _db.ExecuteScalarAsync<bool>(
+			                 "SELECT EXISTS(SELECT 1 FROM videos WHERE id < ? AND course_id=? AND verified=TRUE)",
 			                 data[0].Id, courseId);
 		bool hasAfter = data.Count > 0 &&
-		                await _db.ExecuteScalarAsync<bool>("SELECT EXISTS(SELECT 1 FROM videos WHERE id > ? AND course_id=? AND verified=TRUE)",
+		                await _db.ExecuteScalarAsync<bool>(
+			                "SELECT EXISTS(SELECT 1 FROM videos WHERE id > ? AND course_id=? AND verified=TRUE)",
 			                data.Last().Id, courseId);
 		return (data, hasBefore, hasAfter);
 	}
@@ -147,41 +150,50 @@ internal static class Database
 		await _db.InsertAsync(video);
 	}
 
+	/// <summary>
+	/// Register user will put the user in database if it does not exists in cache
+	/// If user exists in cache, it will not touch the database
+	/// If user does not exists in cache but exists in database, it will update the entries in database
+	/// </summary>
+	/// <param name="user">The user to update</param>
 	public static async Task RegisterUser(Telegram.Bot.Types.User user)
 	{
 		// Check cache
 		if (UserCache.Add(user.Id))
 			return; // data exists in cache. No need to change database
 
-		try
-		{
-			// Add to database
-			// TODO: this should update as well
-			await _db.InsertAsync(new Types.Users
-			{
-				UserID = user.Id,
-				Username = user.Username,
-				Name = user.FirstName + (user.LastName == null ? string.Empty : " " + user.LastName),
-				IsAdmin = false
-			});
-		}
-		catch (Exception)
-		{
-			// we don't care...
-		}
+		// Add to database (or update)
+		await _db.ExecuteAsync("REPLACE INTO users (user_id, username, name) VALUES (?,?,?)",
+			user.Id, user.Username, user.FirstName + (user.LastName == null ? string.Empty : " " + user.LastName));
 	}
 
+	/// <summary>
+	/// Is admin checks if user is admin or not
+	/// </summary>
+	/// <param name="user">The user to check</param>
+	/// <returns>True if admin otherwise false</returns>
 	public static async Task<bool> IsAdmin(Telegram.Bot.Types.User user)
 	{
 		return await IsAdmin(user.Id);
 	}
 
-	private static async Task<bool> IsAdmin(long userId)
+	/// <summary>
+	/// Is admin checks if user is admin or not
+	/// </summary>
+	/// <param name="userId">The userId to check</param>
+	/// <returns>True if admin otherwise false</returns>
+	public static async Task<bool> IsAdmin(long userId)
 	{
 		return await _db.ExecuteScalarAsync<bool>("SELECT EXISTS(SELECT 1 FROM users WHERE user_id=? AND is_admin=1)",
 			userId);
 	}
 
+	/// <summary>
+	/// This method will get a string prettied list of unverified videos to give to admins to check
+	/// The returned list is sorted by newest videos uploaded first
+	/// Always the first 20 videos is returned
+	/// </summary>
+	/// <returns>A string which can be send to admins that contains the list of videos</returns>
 	public static async Task<string> GetUnverifiedVideosList()
 	{
 		var videos =
@@ -193,6 +205,12 @@ internal static class Database
 		return sb.ToString();
 	}
 
+	/// <summary>
+	/// Gets one video by it's database ID
+	/// It contains all info which a video needs
+	/// </summary>
+	/// <param name="databaseId">The row ID</param>
+	/// <returns>Video data</returns>
 	public static async Task<Types.GetVideoResult> GetVideo(int databaseId)
 	{
 		return (await _db.QueryAsync<Types.GetVideoResult>(
@@ -200,6 +218,10 @@ internal static class Database
 			databaseId))[0];
 	}
 
+	/// <summary>
+	/// Deletes a video by it's row ID from database
+	/// </summary>
+	/// <param name="databaseId">Row id to remove</param>
 	public static async Task DeleteVideo(int databaseId)
 	{
 		await _db.DeleteAsync(new Types.Video
@@ -208,6 +230,10 @@ internal static class Database
 		});
 	}
 
+	/// <summary>
+	/// Sets the verify column to True for a video
+	/// </summary>
+	/// <param name="databaseId">The column ID</param>
 	public static async Task VerifyVideo(int databaseId)
 	{
 		await _db.ExecuteAsync("UPDATE videos SET verified=TRUE WHERE id=?", databaseId);

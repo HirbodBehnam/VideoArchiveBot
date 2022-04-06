@@ -193,6 +193,9 @@ internal static class Bot
 				break;
 			case { } s when s.StartsWith(Callback.ReviewResultPrefix):
 			{
+				// Check admin
+				if (await Database.Database.IsAdmin(callbackQuery.From.Id) == false)
+					break;
 				// Is this accepted?
 				bool accepted = s[Callback.ReviewResultPrefix.Length] == 'y';
 				// Get video ID
@@ -210,15 +213,15 @@ internal static class Bot
 			case { } s when s.StartsWith(Callback.GetVideosPageAfterPrefix):
 			{
 				int[] payload = s[Callback.GetVideosPageAfterPrefix.Length..].Split('_').Select(int.Parse).ToArray();
-				await Callback.UpdateVideoSessionsPage(botClient, callbackQuery, HelperTypes.Pivot.Up, payload[0],
-					payload[1]);
+				await Callback.UpdateVideoSessionsPage(botClient, callbackQuery, HelperTypes.Pivot.Up, payload[1],
+					payload[0]);
 			}
 				break;
 			case { } s when s.StartsWith(Callback.GetVideosPageBeforePrefix):
 			{
 				int[] payload = s[Callback.GetVideosPageAfterPrefix.Length..].Split('_').Select(int.Parse).ToArray();
-				await Callback.UpdateVideoSessionsPage(botClient, callbackQuery, HelperTypes.Pivot.Down, payload[0],
-					payload[1]);
+				await Callback.UpdateVideoSessionsPage(botClient, callbackQuery, HelperTypes.Pivot.Down, payload[1],
+					payload[0]);
 			}
 				break;
 			case { } s when s.StartsWith(Callback.GetVideosPrefix):

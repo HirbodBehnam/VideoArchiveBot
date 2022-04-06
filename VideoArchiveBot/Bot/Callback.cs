@@ -18,8 +18,8 @@ internal static class Callback
 	public const string ReviewResultPrefix = "review";
 
 	/// <summary>
-	///     This method will update courses pages of a message
-	///     Update means going to next page or previous page
+	/// This method will update courses pages of a message
+	/// Update means going to next page or previous page
 	/// </summary>
 	/// <param name="bot">Bot</param>
 	/// <param name="callbackQuery">The callback query of database</param>
@@ -40,7 +40,7 @@ internal static class Callback
 	}
 
 	/// <summary>
-	///     This function will send a new message to user with course info
+	/// This function will send a new message to user with course info
 	/// </summary>
 	/// <param name="bot">Bot</param>
 	/// <param name="callbackQuery">The callback query</param>

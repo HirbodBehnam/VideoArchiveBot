@@ -2,6 +2,10 @@
 
 namespace VideoArchiveBot.Util;
 
+/// <summary>
+/// Async blocker is a simple barrier to asynchronously stop the code and continue if from an event
+/// </summary>
+/// <remarks>Each AsyncBlocker is one time use</remarks>
 internal class AsyncBlocker : INotifyCompletion
 {
 	private Action? _continueFunction;
@@ -20,6 +24,9 @@ internal class AsyncBlocker : INotifyCompletion
 	{
 	}
 
+	/// <summary>
+	/// Continue will lift the barrier where this class is awaited on
+	/// </summary>
 	public void Continue()
 	{
 		IsCompleted = true;

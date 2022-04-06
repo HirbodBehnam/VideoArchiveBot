@@ -44,33 +44,24 @@ internal static class InlineButtonUtils
 		return buttonMatrix;
 	}
 
-	/// <summary>
-	/// This function will create a matrix of inline buttons from a source
-	/// It will return the underlying list of list of buttons
-	/// </summary>
-	/// <typeparam name="T">The button type</typeparam>
-	/// <param name="buttons">List of buttons</param>
-	/// <param name="maxColumns">Maximum number of columns to put</param>
-	/// <param name="maxRows">Maximum number of rows to put</param>
-	/// <returns></returns>
-	public static InlineKeyboardMarkup GenerateButtons<T>(IEnumerable<T> buttons, int maxColumns = 5, int maxRows = 10)
-		where T : ITelegramInlineButton
-	{
-		return new InlineKeyboardMarkup(GenerateButtonsRaw(buttons, maxColumns, maxRows));
-	}
-
 	private const int PaginateButtonsMaxRows = 9;
+
+	/// <summary>
+	/// Gets the most elements which can be held in buttons
+	/// </summary>
+	/// <param name="columnCount">How many columns do you want?</param>
+	/// <returns>Max number of elements as buttons</returns>
 	public static int GetMaxElementsInPaginatedButtons(int columnCount) => columnCount * PaginateButtonsMaxRows;
 
 	/// <summary>
-	/// 
+	/// This method will paginate some data as buttons
 	/// </summary>
-	/// <param name="buttons"></param>
-	/// <param name="maxColumns"></param>
-	/// <param name="hasNext"></param>
-	/// <param name="hasBefore"></param>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
+	/// <param name="buttons">Types to paginate as buttons</param>
+	/// <param name="maxColumns">Maximum number of columns</param>
+	/// <param name="hasNext">If there is a page after this</param>
+	/// <param name="hasBefore">If there is a page before this</param>
+	/// <typeparam name="T">Data</typeparam>
+	/// <returns>List of buttons</returns>
 	public static InlineKeyboardMarkup PaginateButtons<T>(List<T> buttons, int maxColumns, bool hasNext, bool hasBefore)
 		where T : ITelegramPaginatableInlineButton
 	{
@@ -106,10 +97,10 @@ internal static class InlineButtonUtils
 	}
 
 	/// <summary>
-	/// 
+	/// This function will create two buttons which says either we should verify this video or not
 	/// </summary>
-	/// <param name="databaseId"></param>
-	/// <returns></returns>
+	/// <param name="databaseId">The row id of video</param>
+	/// <returns>Buttons</returns>
 	public static InlineKeyboardMarkup GenerateVideoReviewButtons(int databaseId)
 	{
 		return new InlineKeyboardMarkup(new InlineKeyboardButton[]

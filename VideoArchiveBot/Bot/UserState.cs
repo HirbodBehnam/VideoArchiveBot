@@ -1,5 +1,9 @@
 ﻿namespace VideoArchiveBot.Bot;
 
+/// <summary>
+/// UsersState will hold the state of user when they are uploading a video
+/// Each entry is valid for only a limited amount of time
+/// </summary>
 internal class UsersState : IDisposable
 {
 	public enum UserState
@@ -221,7 +225,7 @@ internal class UsersState : IDisposable
 			if (!_states.Remove(userId, out data))
 				throw new KeyNotFoundException();
 		// Now create the type
-		return new Database.Types.Video()
+		return new Database.Types.Video
 		{
 			Uploader = userId,
 			CourseID = data.CourseId,
