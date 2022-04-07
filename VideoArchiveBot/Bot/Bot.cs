@@ -146,10 +146,12 @@ internal static class Bot
 					UsersState.SetSessionTopic(message.From.Id, topic);
 					// Store in database
 					var videoInDatabase = UsersState.GetDatabaseTypeFromData(message.From.Id);
-					await Database.Database.AddVideo(videoInDatabase);
+					bool wasAdmin = await Database.Database.AddVideo(videoInDatabase);
 					// Done I guess?
 					await botClient.SendTextMessageAsync(message.From.Id,
-						"Done! Your video has been submitted for review...",
+						wasAdmin
+							? "Done! Your video is now available for all users."
+							: "Done! Your video has been submitted for review...",
 						replyMarkup: new Telegram.Bot.Types.ReplyMarkups.ReplyKeyboardRemove());
 					break;
 			}

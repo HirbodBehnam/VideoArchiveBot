@@ -143,11 +143,12 @@ internal static class Database
 	/// This function will add a video entry to video table
 	/// </summary>
 	/// <param name="video">The video to add</param>
-	/// <returns></returns>
-	public static async Task AddVideo(Types.Video video)
+	/// <returns>If the uploader was admin or not.</returns>
+	public static async Task<bool> AddVideo(Types.Video video)
 	{
 		video.Verified = await IsAdmin(video.Uploader);
 		await _db.InsertAsync(video);
+		return video.Verified;
 	}
 
 	/// <summary>
