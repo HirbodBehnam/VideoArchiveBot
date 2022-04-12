@@ -26,7 +26,8 @@ to compile the bot.
 
 To run the bot, at first you have to set the environmental variable of `BOT_TOKEN` as your Telegram bot token. You can
 also optionally, set `DB_PATH` to set a custom database path. Otherwise this is defaulted to `database.db`. Then just
-run the program.
+run the program. Another option which can be used is `UPLOADER_PRIVACY` which can be either `none`, `name` or `all`. Any
+other value is interpreted as `all`. This value defines if users can see the uploader name of videos.
 
 After running the program send `/start` to bot to test it. Then you probably want to make yourself the admin of the bot.
 It is recommended to at first stop the bot and then open the database of the bot. Then, go to users table and find

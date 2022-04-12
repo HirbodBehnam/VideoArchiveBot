@@ -77,7 +77,7 @@ internal static class Commands
 	private static async Task SendVideoForReview(ITelegramBotClient bot, ChatId chatId, int databaseId)
 	{
 		var video = await Database.Database.GetVideo(databaseId);
-		await bot.SendVideoAsync(chatId, new InputOnlineFile(video.VideoFileID), caption: video.ToString(),
+		await bot.SendVideoAsync(chatId, new InputOnlineFile(video.VideoFileID), caption: video.ToString(true),
 			replyMarkup: InlineButtonUtils.GenerateVideoReviewButtons(databaseId));
 	}
 

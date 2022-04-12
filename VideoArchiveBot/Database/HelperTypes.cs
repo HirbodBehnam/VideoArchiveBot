@@ -7,4 +7,21 @@ internal static class HelperTypes
 		Up,
 		Down,
 	}
+
+	public enum UploaderPrivacy
+	{
+		All,
+		NameOnly,
+		None
+	}
+
+	public static UploaderPrivacy UploaderPrivacyFromString(string? input)
+	{
+		return input switch
+		{
+			"name" => UploaderPrivacy.NameOnly,
+			"none" => UploaderPrivacy.None,
+			_ => UploaderPrivacy.All
+		};
+	}
 }

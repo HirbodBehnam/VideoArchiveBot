@@ -5,6 +5,9 @@ namespace VideoArchiveBot.Database;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 internal static class Types
 {
+	private static readonly HelperTypes.UploaderPrivacy PrivacySettings =
+		HelperTypes.UploaderPrivacyFromString(Environment.GetEnvironmentVariable("UPLOADER_PRIVACY"));
+
 	[Table("courses")]
 	public class Course
 	{
@@ -105,7 +108,7 @@ internal static class Types
 		public int Id { get; set; }
 
 		[Column("session_number")] public int SessionNumber { get; set; }
-		
+
 		[Column("course")] public int CourseId { get; set; }
 
 		public string GetCallbackData()
@@ -151,9 +154,18 @@ internal static class Types
 
 		public override string ToString()
 		{
-			return
-				$"{CourseName}\nSession {SessionNumber} at {DateOnly.FromDateTime(SessionDate)}\nFrom: {UploaderName} {UsernameData}\n" +
-				$"Uploaded at {AddedTime}\nTopic: {Topic ?? "-"}";
+			return ToString(false);
+		}
+
+		public string ToString(bool isAdmin)
+		{
+			string result = $"{CourseName}\nSession {SessionNumber} at {DateOnly.FromDateTime(SessionDate)}\n";
+			if (isAdmin || PrivacySettings == HelperTypes.UploaderPrivacy.All)
+				result += $"From: {UploaderName} {UsernameData}\n";
+			else if (PrivacySettings == HelperTypes.UploaderPrivacy.NameOnly)
+				result += $"From: {UploaderName}\n";
+			result += $"Uploaded at {AddedTime}\nTopic: {Topic ?? "-"}";
+			return result;
 		}
 	}
 }

@@ -19,9 +19,9 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Publish
-      run: dotnet publish -r ${{ matrix.targetos }} --self-contained -c Release -o VideoArchiveBot/
+      run: dotnet publish -r ${{ matrix.targetos }} --self-contained -c Release -o VideoArchiveBotRelease/
     - name: Compress
-      run: tar cfJ VideoArchiveBot-${{ matrix.targetos }}.tar.gz VideoArchiveBot/*
+      run: tar cfJ VideoArchiveBot-${{ matrix.targetos }}.tar.gz VideoArchiveBotRelease/*
     - name: Upload
       uses: JasonEtco/upload-to-release@master
       env:
