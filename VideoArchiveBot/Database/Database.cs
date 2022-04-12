@@ -164,8 +164,8 @@ internal static class Database
 			return; // data exists in cache. No need to change database
 
 		// Add to database (or update)
-		await _db.ExecuteAsync("REPLACE INTO users (user_id, username, name) VALUES (?,?,?)",
-			user.Id, user.Username, user.FirstName + (user.LastName == null ? string.Empty : " " + user.LastName));
+		await _db.ExecuteAsync("REPLACE INTO users (user_id, username, name, is_admin) VALUES (?,?,?, (SELECT is_admin FROM users WHERE user_id=?))",
+			user.Id, user.Username, user.FirstName + (user.LastName == null ? string.Empty : " " + user.LastName), user.Id);
 	}
 
 	/// <summary>
