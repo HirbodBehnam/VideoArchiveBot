@@ -5,7 +5,7 @@
 /// </summary>
 /// <remarks>This cache is thread safe</remarks>
 /// <typeparam name="TK">The type of cache</typeparam>
-internal class LruCache<TK> where TK : notnull
+public class LruCache<TK> where TK : notnull
 {
 	private readonly LinkedList<TK> _list = new();
 	private readonly Dictionary<TK, LinkedListNode<TK>> _map;

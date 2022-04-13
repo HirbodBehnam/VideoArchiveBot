@@ -1,6 +1,9 @@
-﻿using Telegram.Bot;
+﻿using System.IO.Compression;
+using System.IO.Pipes;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
+using File = System.IO.File;
 
 namespace VideoArchiveBot.Bot;
 
@@ -46,6 +49,12 @@ internal static class Commands
 				if (data.Length == 0)
 					data = "Nothing to review!";
 				await bot.SendTextMessageAsync(message.Chat.Id, data);
+				break;
+			case "/db_dump":
+				// Non admins get the database!
+				if (await Database.Database.IsAdmin(message.From!) == false)
+					return false;
+				await UploadDatabase(bot, message.Chat.Id);
 				break;
 			default:
 				return false;
@@ -94,7 +103,32 @@ internal static class Commands
 		              "you can upload your video upto one hour after it to the bot. (you can also forward the video.)\n" +
 		              "At anytime, you can cancel the process using /cancel";
 		if (await Database.Database.IsAdmin(userId))
-			help += "\nYou are admin so you can use /review to review unverified videos";
+			help +=
+				"\nYou are admin so you can use /review to review unverified videos.\nYou can also use /db_dump to get " +
+				"a backup from bot's database.";
 		return help;
+	}
+
+	private static async Task UploadDatabase(ITelegramBotClient bot, ChatId chatId)
+	{
+		// Create temp location to copy the file into it
+		string dbTempLocation = Path.GetTempFileName();
+		try
+		{
+			// Copy the file in order to bypass file locks
+			File.Copy(VideoArchiveBot.Util.ProgramUtil.DatabasePath, dbTempLocation, true);
+			// Create a memory stream to send the file into it
+			await using var outputStream = new MemoryStream();
+			// Create the compress stream and the file stream
+			await using (var compressStream = new GZipStream(outputStream, CompressionMode.Compress, true))
+			await using (var file = new FileStream(dbTempLocation, FileMode.Open, FileAccess.Read, FileShare.Read))
+				await file.CopyToAsync(compressStream);
+			outputStream.Position = 0; // reset the stream
+			await bot.SendDocumentAsync(chatId, new InputMedia(outputStream, "database.db.gz"));
+		}
+		finally
+		{
+			File.Delete(dbTempLocation);
+		}
 	}
 }
