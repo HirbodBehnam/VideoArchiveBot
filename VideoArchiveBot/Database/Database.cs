@@ -121,12 +121,12 @@ internal static class Database
 		// We should never reach data.Count > 0 == false
 		bool hasBefore = data.Count > 0 &&
 		                 await _db.ExecuteScalarAsync<bool>(
-			                 "SELECT EXISTS(SELECT 1 FROM videos WHERE id < ? AND course_id=? AND verified=TRUE)",
-			                 data[0].Id, courseId);
+			                 "SELECT EXISTS(SELECT 1 FROM videos WHERE course_id=? AND session_number < ? AND verified=TRUE)",
+			                 courseId, data[0].SessionNumber);
 		bool hasAfter = data.Count > 0 &&
 		                await _db.ExecuteScalarAsync<bool>(
-			                "SELECT EXISTS(SELECT 1 FROM videos WHERE id > ? AND course_id=? AND verified=TRUE)",
-			                data.Last().Id, courseId);
+			                "SELECT EXISTS(SELECT 1 FROM videos WHERE course_id=? AND session_number > ? AND verified=TRUE)",
+			                courseId, data.Last().SessionNumber);
 		return (data, hasBefore, hasAfter);
 	}
 
