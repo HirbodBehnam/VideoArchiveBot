@@ -4,6 +4,7 @@ internal class Program
 {
 	static async Task Main()
 	{
+		Console.WriteLine("Video Archive Bot version " + typeof(Program).Assembly.GetName().Version);
 		// Open database connection
 		await Database.Database.OpenConnection(Util.ProgramUtil.DatabasePath);
 		// Start bot
