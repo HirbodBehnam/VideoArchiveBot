@@ -91,7 +91,7 @@ internal static class Database
 	/// </summary>
 	/// <param name="pivot">If pivot is <see cref="HelperTypes.Pivot.Up"/> courses with IDs more or equal than ID will show up in result
 	/// Otherwise, all elements have less than or equal ID to id</param>
-	/// <param name="id">The ID to get info around it. This ID is always included in the result</param>
+	/// <param name="sessionId">The session ID to get info around it. This ID is always included in the result</param>
 	/// <param name="courseId">The course ID of the videos which we must get</param>
 	/// <param name="limit">Limit the number of elements in returned data</param>
 	/// <returns>Returns three values
@@ -100,19 +100,19 @@ internal static class Database
 	/// Last bool indicates if there are rows with bigger IDs
 	/// </returns>
 	public static async Task<(List<Types.VideoSessionInfo> data, bool hasBefore, bool hasNext)> GetVerifiedCourseVideos(
-		HelperTypes.Pivot pivot, int id, int courseId, int limit)
+		HelperTypes.Pivot pivot, int sessionId, int courseId, int limit)
 	{
 		// At first get the requested data
 		List<Types.VideoSessionInfo> data;
 		if (pivot == HelperTypes.Pivot.Up)
 			data = await _db.QueryAsync<Types.VideoSessionInfo>(
-				"SELECT id, session_number, course_id FROM videos WHERE id >= ? AND course_id=? AND verified=TRUE ORDER BY session_number LIMIT ?",
-				id, courseId, limit);
+				"SELECT id, session_number, course_id FROM videos WHERE session_number >= ? AND course_id=? AND verified=TRUE ORDER BY session_number LIMIT ?",
+				sessionId, courseId, limit);
 		else
 		{
 			data = await _db.QueryAsync<Types.VideoSessionInfo>(
-				"SELECT id, session_number, course_id FROM videos WHERE id <= ? AND course_id=? AND verified=TRUE ORDER BY session_number DESC LIMIT ?",
-				id, courseId, limit);
+				"SELECT id, session_number, course_id FROM videos WHERE session_number <= ? AND course_id=? AND verified=TRUE ORDER BY session_number DESC LIMIT ?",
+				sessionId, courseId, limit);
 			data.Reverse(); // Get them ascending
 		}
 
@@ -164,8 +164,10 @@ internal static class Database
 			return; // data exists in cache. No need to change database
 
 		// Add to database (or update)
-		await _db.ExecuteAsync("REPLACE INTO users (user_id, username, name, is_admin) VALUES (?,?,?, IFNULL((SELECT is_admin FROM users WHERE user_id=?), 0))",
-			user.Id, user.Username, user.FirstName + (user.LastName == null ? string.Empty : " " + user.LastName), user.Id);
+		await _db.ExecuteAsync(
+			"REPLACE INTO users (user_id, username, name, is_admin) VALUES (?,?,?, IFNULL((SELECT is_admin FROM users WHERE user_id=?), 0))",
+			user.Id, user.Username, user.FirstName + (user.LastName == null ? string.Empty : " " + user.LastName),
+			user.Id);
 	}
 
 	/// <summary>

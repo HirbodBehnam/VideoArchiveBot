@@ -83,10 +83,10 @@ internal static class Callback
 	}
 
 	public static async Task UpdateVideoSessionsPage(ITelegramBotClient bot, CallbackQuery callbackQuery,
-		HelperTypes.Pivot pivot, int courseId, int id)
+		HelperTypes.Pivot pivot, int courseId, int sessionNumber)
 	{
 		// Fetch data
-		var buttons = await Util.GetAndPaginateCourseVideos(pivot, courseId, id);
+		var buttons = await Util.GetAndPaginateCourseVideos(pivot, courseId, sessionNumber);
 		// Answer the callback
 		await bot.AnswerCallbackQueryAsync(callbackQuery.Id);
 		// Create the buttons and edit the message

@@ -123,12 +123,12 @@ internal static class Types
 
 		public string GetNextPageCallbackData()
 		{
-			return Callback.GetVideosPageAfterPrefix + Id + "_" + CourseId;
+			return Callback.GetVideosPageAfterPrefix + SessionNumber + "_" + CourseId;
 		}
 
 		public string GetPreviousPageCallbackData()
 		{
-			return Callback.GetVideosPageBeforePrefix + Id + "_" + CourseId;
+			return Callback.GetVideosPageBeforePrefix + SessionNumber + "_" + CourseId;
 		}
 	}
 

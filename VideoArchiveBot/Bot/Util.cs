@@ -25,14 +25,14 @@ internal static class Util
 	/// </summary>
 	/// <param name="pivot">Should we go up or down the rows?</param>
 	/// <param name="courseId">The course id</param>
-	/// <param name="id">The video id which <see cref="pivot"/> is for</param>
+	/// <param name="sessionNumber">The session number which <see cref="pivot"/> is for</param>
 	/// <returns>A list of buttons which can give videos to user. Or null if nothing exists</returns>
-	public static async Task<InlineKeyboardMarkup?> GetAndPaginateCourseVideos(Database.HelperTypes.Pivot pivot, int courseId, int id)
+	public static async Task<InlineKeyboardMarkup?> GetAndPaginateCourseVideos(Database.HelperTypes.Pivot pivot, int courseId, int sessionNumber)
 	{
 		// Fetch the data from database
 		const int columns = 4;
 		int limit = InlineButtonUtils.GetMaxElementsInPaginatedButtons(columns);
-		(var courses, bool hasBefore, bool hasNext) = await Database.Database.GetVerifiedCourseVideos(pivot, id, courseId, limit);
+		(var courses, bool hasBefore, bool hasNext) = await Database.Database.GetVerifiedCourseVideos(pivot, sessionNumber, courseId, limit);
 		// Paginate if needed
 		return courses.Count == 0 ? null : InlineButtonUtils.PaginateButtons(courses, columns, hasNext, hasBefore);
 	}
