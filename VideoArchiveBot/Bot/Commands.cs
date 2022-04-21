@@ -113,22 +113,28 @@ internal static class Commands
 	{
 		// Create temp location to copy the file into it
 		string dbTempLocation = Path.GetTempFileName();
+		// Create a memory stream to send the file into it
+		var gzipPipe = new System.IO.Pipelines.Pipe();
 		try
 		{
 			// Copy the file in order to bypass file locks
 			File.Copy(VideoArchiveBot.Util.ProgramUtil.DatabasePath, dbTempLocation, true);
-			// Create a memory stream to send the file into it
-			await using var outputStream = new MemoryStream();
-			// Create the compress stream and the file stream
-			await using (var compressStream = new GZipStream(outputStream, CompressionMode.Compress, true))
-			await using (var file = new FileStream(dbTempLocation, FileMode.Open, FileAccess.Read, FileShare.Read))
+			// Create the compress stream and the file stream in a new task
+			new Task(async () =>
+			{
+				await using var compressStream =
+					new GZipStream(gzipPipe.Writer.AsStream(), CompressionMode.Compress, false);
+				await using var file = new FileStream(dbTempLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
 				await file.CopyToAsync(compressStream);
-			outputStream.Position = 0; // reset the stream
-			await bot.SendDocumentAsync(chatId, new InputMedia(outputStream, "database.db.gz"));
+			}).Start();
+			// Also simultaneously send the file to telegram servers
+			await bot.SendDocumentAsync(chatId, new InputMedia(gzipPipe.Reader.AsStream(), "database.db.gz"));
 		}
 		finally
 		{
 			File.Delete(dbTempLocation);
+			await gzipPipe.Writer.CompleteAsync();
+			await gzipPipe.Reader.CompleteAsync();
 		}
 	}
 }
