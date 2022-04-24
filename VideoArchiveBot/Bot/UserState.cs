@@ -211,6 +211,12 @@ internal class UsersState : IDisposable
 			_states[userId].Topic = topic;
 	}
 
+	public int GetCourseId(long userId)
+	{
+		lock (_states)
+			return _states[userId].CourseId;
+	}
+
 	/// <summary>
 	/// This method will get the <see cref="Database.Types.Video"/> in order to perform an insert operation from state.
 	/// After invoking this function, the state of user will be deleted from map

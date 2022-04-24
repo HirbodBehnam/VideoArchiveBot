@@ -241,4 +241,15 @@ internal static class Database
 	{
 		await _db.ExecuteAsync("UPDATE videos SET verified=TRUE WHERE id=?", databaseId);
 	}
+
+	/// <summary>
+	/// Gets the next session id for a course
+	/// </summary>
+	/// <param name="courseId">The courses.id</param>
+	/// <returns>Next session id</returns>
+	public static async Task<int> GetNextSessionNumber(int courseId)
+	{
+		return await _db.ExecuteScalarAsync<int>(
+			"SELECT IFNULL(MAX(session_number), 0) + 1 FROM videos WHERE course_id=? AND verified=TRUE", courseId);
+	}
 }

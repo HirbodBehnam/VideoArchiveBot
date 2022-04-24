@@ -85,7 +85,15 @@ internal static class Bot
 			try
 			{
 				UsersState.SetVideo(message.From.Id, message.Video.FileId);
-				await botClient.SendTextMessageAsync(message.From.Id, "Now send the session number");
+				await botClient.SendTextMessageAsync(message.From.Id, "Now send the session number",
+					replyMarkup: new Telegram.Bot.Types.ReplyMarkups.ReplyKeyboardMarkup(
+						new Telegram.Bot.Types.ReplyMarkups.KeyboardButton(
+							(await Database.Database.GetNextSessionNumber(UsersState.GetCourseId(message.From.Id)))
+							.ToString())
+					)
+					{
+						OneTimeKeyboard = true
+					});
 			}
 			catch (KeyNotFoundException)
 			{
