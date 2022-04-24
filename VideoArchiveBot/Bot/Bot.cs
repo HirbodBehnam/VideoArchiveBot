@@ -26,7 +26,11 @@ internal static class Bot
 			cts.Token);
 		// Wait for Ctrl + C
 		var cancelBot = new VideoArchiveBot.Util.AsyncBlocker();
-		Console.CancelKeyPress += delegate { cancelBot.Continue(); };
+		Console.CancelKeyPress += (_, eventArgs) =>
+		{
+			eventArgs.Cancel = true;
+			cancelBot.Continue();
+		};
 		await cancelBot;
 		cts.Cancel();
 	}
