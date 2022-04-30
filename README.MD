@@ -5,7 +5,7 @@ A telegram bot to archive videos of classes.
 ## Features
 
 * No disk space used for videos. Only file ID's are stored in database
-* Embedded; Sqlite is used as database. This means that you don't have to setup a external database for it.
+* Embedded; Sqlite is used as database. This means that you don't have to setup an external database for it.
 * Admins and review queues. Users can freely submit videos to bot and admins can verify them, making them available to
   other users as well.
 * Semi-Stateless. The only state used in bot is when users are uploading videos. Inline buttons do not use states.
