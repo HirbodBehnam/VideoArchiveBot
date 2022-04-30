@@ -132,6 +132,25 @@ internal static class Types
 		}
 	}
 
+	public class VideoTopicInfo
+	{
+		/// <summary>
+		/// The video ID in the database. Not the course ID
+		/// </summary>
+		[Column("id")]
+		public int Id { get; set; }
+
+		[Column("topic")] public string? Topic { get; set; }
+		[Column("session_number")] public int SessionNumber { get; set; }
+
+		public override string ToString()
+		{
+			return Topic == null ?
+				$"S{SessionNumber}: /{Commands.GetVideoPrefix}{Id}" :
+				$"S{SessionNumber}: {Topic}: /{Commands.GetVideoPrefix}{Id}";
+		}
+	}
+
 	public class GetVideoResult
 	{
 		[Column("video_id")] public int VideoId { get; set; }

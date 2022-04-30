@@ -1,4 +1,7 @@
-﻿using Telegram.Bot.Types.ReplyMarkups;
+﻿using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace VideoArchiveBot.Bot;
 
@@ -35,5 +38,17 @@ internal static class Util
 		(var courses, bool hasBefore, bool hasNext) = await Database.Database.GetVerifiedCourseVideos(pivot, sessionNumber, courseId, limit);
 		// Paginate if needed
 		return courses.Count == 0 ? null : InlineButtonUtils.PaginateButtons(courses, columns, hasNext, hasBefore);
+	}
+	
+	public static async Task SendCourseVideo(ITelegramBotClient bot, ChatId chatId, int videoId)
+	{
+		var video = await Database.Database.GetVideo(videoId);
+		if (video == null)
+		{
+			await bot.SendTextMessageAsync(chatId, "Video not found!");
+			return;
+		}
+		await bot.SendVideoAsync(chatId, new InputOnlineFile(video.VideoFileID),
+			caption: video.ToString());
 	}
 }

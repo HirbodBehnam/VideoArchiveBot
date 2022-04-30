@@ -238,12 +238,17 @@ internal static class Bot
 					payload[0]);
 			}
 				break;
-			case { } s when s.StartsWith(Callback.GetVideosPrefix):
+			case { } s when s.StartsWith(Callback.GetVideoSessionsPrefix):
 				await Callback.SendCourseVideos(botClient, callbackQuery,
-					int.Parse(s[Callback.GetVideosPrefix.Length..]));
+					int.Parse(s[Callback.GetVideoSessionsPrefix.Length..]));
+				break;
+			case { } s when s.StartsWith(Callback.GetCourseVideoTopicsPrefix):
+				await Callback.SendCourseVideosTitles(botClient, callbackQuery,
+					int.Parse(s[Callback.GetCourseVideoTopicsPrefix.Length..]));
 				break;
 			case { } s when s.StartsWith(Callback.GetVideoPrefix):
-				await Callback.SendCourseVideo(botClient, callbackQuery,
+				await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+				await Util.SendCourseVideo(botClient, callbackQuery.From.Id,
 					int.Parse(s[Callback.GetVideoPrefix.Length..]));
 				break;
 		}

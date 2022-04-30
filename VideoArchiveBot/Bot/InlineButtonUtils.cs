@@ -83,16 +83,26 @@ internal static class InlineButtonUtils
 	/// <returns>Buttons</returns>
 	public static InlineKeyboardMarkup GenerateCourseButtons(int courseId)
 	{
-		return new InlineKeyboardMarkup(new InlineKeyboardButton[]
+		return new InlineKeyboardMarkup(new[]
 		{
-			new("Get Videos")
+			new InlineKeyboardButton[]
 			{
-				CallbackData = Callback.GetVideosPrefix + courseId
+				new("Select Session")
+				{
+					CallbackData = Callback.GetVideoSessionsPrefix + courseId
+				},
+				new("Get Topics")
+				{
+					CallbackData = Callback.GetCourseVideoTopicsPrefix + courseId
+				}
 			},
-			new("Upload Video")
+			new InlineKeyboardButton[]
 			{
-				CallbackData = Callback.UploadVideoPrefix + courseId
-			},
+				new("Upload Video")
+				{
+					CallbackData = Callback.UploadVideoPrefix + courseId
+				},
+			}
 		});
 	}
 

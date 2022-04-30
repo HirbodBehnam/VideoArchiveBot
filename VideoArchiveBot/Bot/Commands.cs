@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-using System.IO.Pipes;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
@@ -10,6 +9,7 @@ namespace VideoArchiveBot.Bot;
 internal static class Commands
 {
 	public const string ReviewVideoPrefix = "review_";
+	public const string GetVideoPrefix = "get_video_";
 
 	public static async Task<bool> CheckAndHandleCommand(ITelegramBotClient bot, Message message)
 	{
@@ -39,6 +39,10 @@ internal static class Commands
 					return false;
 				// Send the video
 				await SendVideoForReview(bot, message.Chat.Id, int.Parse(s[(ReviewVideoPrefix.Length + 1)..]));
+				break;
+			case { } s when s.StartsWith("/" + GetVideoPrefix):
+				// Send the video
+				await Util.SendCourseVideo(bot, message.Chat.Id, int.Parse(s[(GetVideoPrefix.Length + 1)..]));
 				break;
 			case "/review":
 				// Non admins cannot review!
@@ -85,7 +89,12 @@ internal static class Commands
 	/// <param name="databaseId">The video row id in database</param>
 	private static async Task SendVideoForReview(ITelegramBotClient bot, ChatId chatId, int databaseId)
 	{
-		var video = await Database.Database.GetVideo(databaseId);
+		var video = await Database.Database.GetVideo(databaseId, false);
+		if (video == null)
+		{
+			await bot.SendTextMessageAsync(chatId, "Video not found!");
+			return;
+		}
 		await bot.SendVideoAsync(chatId, new InputOnlineFile(video.VideoFileID), caption: video.ToString(true),
 			replyMarkup: InlineButtonUtils.GenerateVideoReviewButtons(databaseId));
 	}

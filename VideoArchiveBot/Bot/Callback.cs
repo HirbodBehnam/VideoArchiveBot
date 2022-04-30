@@ -1,6 +1,6 @@
-﻿using Telegram.Bot;
+﻿using System.Text;
+using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.InputFiles;
 using VideoArchiveBot.Database;
 
 namespace VideoArchiveBot.Bot;
@@ -10,7 +10,8 @@ internal static class Callback
 	public const string GetCoursePrefix = "getcourse";
 	public const string GetCoursePageAfterPrefix = "getcoursepage_n";
 	public const string GetCoursePageBeforePrefix = "getcoursepage_p";
-	public const string GetVideosPrefix = "getvideos";
+	public const string GetVideoSessionsPrefix = "getsessionvideos";
+	public const string GetCourseVideoTopicsPrefix = "getvideostopics";
 	public const string GetVideosPageAfterPrefix = "getvideos_n";
 	public const string GetVideosPageBeforePrefix = "getvideos_p";
 	public const string GetVideoPrefix = "getvideo";
@@ -74,14 +75,6 @@ internal static class Callback
 			replyMarkup: buttons);
 	}
 
-	public static async Task SendCourseVideo(ITelegramBotClient bot, CallbackQuery callbackQuery, int videoId)
-	{
-		var video = await Database.Database.GetVideo(videoId);
-		await bot.AnswerCallbackQueryAsync(callbackQuery.Id);
-		await bot.SendVideoAsync(callbackQuery.From.Id, new InputOnlineFile(video.VideoFileID),
-			caption: video.ToString());
-	}
-
 	public static async Task UpdateVideoSessionsPage(ITelegramBotClient bot, CallbackQuery callbackQuery,
 		HelperTypes.Pivot pivot, int courseId, int sessionNumber)
 	{
@@ -93,5 +86,19 @@ internal static class Callback
 		await bot.EditMessageReplyMarkupAsync(callbackQuery.From.Id,
 			callbackQuery.Message!.MessageId,
 			buttons);
+	}
+
+	public static async Task SendCourseVideosTitles(ITelegramBotClient bot, CallbackQuery callbackQuery, int courseId)
+	{
+		// Fetch data
+		var videos = await Database.Database.GetVerifiedVideoTopics(courseId);
+		// Create the message
+		StringBuilder messageText = new(videos.Count * 50);
+		foreach (var video in videos)
+			messageText.AppendLine(video.ToString());
+		// Answer the callback
+		await bot.AnswerCallbackQueryAsync(callbackQuery.Id);
+		// Send the message
+		await bot.SendTextMessageAsync(callbackQuery.From.Id, messageText.ToString());
 	}
 }

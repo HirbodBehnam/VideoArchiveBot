@@ -130,6 +130,12 @@ internal static class Database
 		return (data, hasBefore, hasAfter);
 	}
 
+	public static async Task<List<Types.VideoTopicInfo>> GetVerifiedVideoTopics(int courseId)
+	{
+		return await _db.QueryAsync<Types.VideoTopicInfo>(
+			"SELECT id, session_number, topic FROM videos WHERE course_id=? ORDER BY session_number", courseId);
+	}
+
 	/// <summary>
 	/// This function will simply get a coursed based on it's database ID
 	/// </summary>
@@ -213,12 +219,14 @@ internal static class Database
 	/// It contains all info which a video needs
 	/// </summary>
 	/// <param name="databaseId">The row ID</param>
+	/// <param name="verified">Should the video we fetch be verified or not</param>
 	/// <returns>Video data</returns>
-	public static async Task<Types.GetVideoResult> GetVideo(int databaseId)
+	public static async Task<Types.GetVideoResult?> GetVideo(int databaseId, bool verified = true)
 	{
-		return (await _db.QueryAsync<Types.GetVideoResult>(
-			"SELECT videos.id as video_id, video_file_id, session_number, session_date, topic, added_time, courses.name || ' G' || courses.group_id as course, users.username, users.name FROM videos INNER JOIN courses ON videos.course_id = courses.id INNER JOIN users ON videos.uploader = users.user_id WHERE videos.id=?",
-			databaseId))[0];
+		var data = await _db.QueryAsync<Types.GetVideoResult>(
+			"SELECT videos.id as video_id, video_file_id, session_number, session_date, topic, added_time, courses.name || ' G' || courses.group_id as course, users.username, users.name FROM videos INNER JOIN courses ON videos.course_id = courses.id INNER JOIN users ON videos.uploader = users.user_id WHERE videos.id=? AND videos.verified=?",
+			databaseId, verified);
+		return data.FirstOrDefault();
 	}
 
 	/// <summary>
